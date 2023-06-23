@@ -14,9 +14,13 @@ public class DemoApplication {
     }
 
     public static void main(String[] args) throws Exception {
+        String dispurl;
         log.info("Loading application properties");
         Properties properties = new Properties();
         properties.load(DemoApplication.class.getClassLoader().getResourceAsStream("application.properties"));
+        dispurl = properties.getProperty("url");
+        System.out.println("This is url in application.properties: " + dispurl);
+        
 
         log.info("Connecting to the database");
         Connection connection = DriverManager.getConnection(properties.getProperty("url"), properties);
