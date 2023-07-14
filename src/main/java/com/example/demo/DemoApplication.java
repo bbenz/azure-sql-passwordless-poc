@@ -3,6 +3,8 @@ package com.example.demo;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DemoApplication {
 
@@ -16,7 +18,7 @@ public class DemoApplication {
     public static void main(String[] args) throws Exception {
         String dispurl;
         log.info("Loading application properties");
-        Properties properties = new Properties();
+        EnvProperties properties = new EnvProperties();
         properties.load(DemoApplication.class.getClassLoader().getResourceAsStream("application.properties"));
         dispurl = properties.getProperty("url");
         System.out.println("This is url in application.properties: " + dispurl);
@@ -98,4 +100,27 @@ public class DemoApplication {
         readData(connection);
     }
 
+}
+
+class EnvProperties extends Properties
+{
+    private static final long serialVersionUID = 1L;
+    private Pattern envVarPattern = Pattern.compile("\\$\\{([^}]+)\\}");
+    
+    @Override
+    public String getProperty(String key)
+    {
+    	String value = super.getProperty(key);
+        if (null == value || value.isBlank())
+            return null;
+        StringBuffer result = new StringBuffer(value.length());
+        Matcher m = envVarPattern.matcher(value);
+        while (m.find())
+        {
+            String envValue = System.getenv(m.group(1));
+            m.appendReplacement(result, null == envValue ? "" : envValue);
+        }
+        m.appendTail(result);
+        return result.toString();
+    }
 }
